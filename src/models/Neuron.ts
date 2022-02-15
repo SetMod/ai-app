@@ -16,6 +16,7 @@ export default class Neuron {
     }
 
     public result(): number {
+        this.Sum = 0
         this.inputs.value.forEach((input: IInputs) => {
             this.Sum += (input.x * input.w)
         })

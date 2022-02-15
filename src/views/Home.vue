@@ -33,12 +33,12 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, onMounted } from "vue";
 import InputsList from "@/components/InputsList.vue";
 import InputsDraw from "@/components/InputsDraw.vue";
 import PresetsList from "@/components/PresetsList.vue";
 import Neuron from "@/models/Neuron";
-// import generatedInputs from "@/helpers/generateinputs";
+import generatedInputs from "@/helpers/generateinputs";
 import store from "@/store/store";
 
 export default defineComponent({
@@ -53,9 +53,9 @@ export default defineComponent({
       return neuron.result();
     });
 
-    // onMounted(() => {
-    //   store.inputs.setInputs(generatedInputs(35));
-    // });
+    onMounted(() => {
+      store.inputs.setInputs(generatedInputs(35));
+    });
 
     const learn = () => {
       const neuron = new Neuron(store.inputs, store.teta);

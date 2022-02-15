@@ -2,7 +2,6 @@ import IPresets from "@/interfaces/IPresets";
 import { reactive } from "vue";
 import randNum from "@/helpers/random";
 import IInputs from "@/interfaces/IInputs";
-import generatedInputs from "@/helpers/generateinputs";
 
 const store = reactive({
     teta: randNum(15),
@@ -13,7 +12,7 @@ const store = reactive({
         }
     },
     inputs: {
-        value: generatedInputs(35),//new Array<IInputs>(),
+        value: new Array<IInputs>(),
         setInputs(value: Array<IInputs>) {
             this.value = value
         },
