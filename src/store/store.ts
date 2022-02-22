@@ -1,9 +1,10 @@
-import IPresets from "@/interfaces/IPresets";
-import { reactive } from "vue";
+import IPreset from "@/interfaces/IPreset";
+import { reactive, toRefs } from "vue";
 import randNum from "@/helpers/random";
-import IInputs from "@/interfaces/IInputs";
+import IInput from "@/interfaces/IInput";
+import generatedInputs from "@/helpers/generateinputs";
 
-const store = reactive({
+export const store = reactive({
     teta: randNum(15),
     iterations: {
         value: 0,
@@ -12,8 +13,8 @@ const store = reactive({
         }
     },
     inputs: {
-        value: new Array<IInputs>(),
-        setInputs(value: Array<IInputs>) {
+        value: new Array<IInput>(),
+        setInputs(value: Array<IInput>) {
             this.value = value
         },
         setReverseInput(index: number) {
@@ -23,18 +24,24 @@ const store = reactive({
                 this.value[index].x = 1
             }
         },
-        increaseWeights() {
+        increaseWeights(epsilon?: number, eta: number = 1) {
             this.value.forEach((input) => {
                 // if x is 1 then increase weights by 1
                 if (input.x) {
-                    input.w += input.x;
+                    if (epsilon) {
+                        input.w += eta * epsilon * input.x;
+                    } else {
+                        input.w += input.x;
+                    }
                 }
             });
         },
-        decreaseWeights() {
+        decreaseWeights(epsilon?: number, eta: number = 1) {
             this.value.forEach((input) => {
                 // if x is 1 then decrease weights by 1
-                if (input.x) {
+                if (epsilon) {
+                    input.w -= eta * epsilon * input.x;
+                } else {
                     input.w -= input.x;
                 }
             });
@@ -54,23 +61,28 @@ const store = reactive({
         }
     },
     presets: {
-        value: new Array<IPresets>(),
-        setPresets(value: Array<IPresets>) {
+        value: new Array<IPreset>(),
+        setPresets(value: Array<IPreset>) {
             this.value = value
         },
-        getPreset(index: number): IPresets {
+        getPreset(index: number): IPreset {
             return this.value[index]
         },
-        addPreset(preset: IPresets) {
+        addPreset(preset: IPreset) {
             this.value.push(preset);
         },
         deletePreset(index: number) {
             this.value.splice(index, 1);
         },
         resetPresets() {
-            this.value = new Array<IPresets>()
+            this.value = new Array<IPreset>()
         },
     },
 });
 
-export default store
+export default function useStore() {
+    store.inputs.setInputs(generatedInputs(35));
+    return {
+        ...toRefs(store)
+    }
+}

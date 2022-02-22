@@ -1,10 +1,11 @@
 import randNum from "@/helpers/random";
-import IInputs from "@/interfaces/IInputs";
+import IInput from "@/interfaces/IInput";
+import Input from "@/models/Input";
 
-const generatedInputs = (len: number): Array<IInputs> => Array.from(Array(len)).map(() => {
+const generatedInputs = (len: number): Array<IInput> => Array.from(Array(len)).map(() => {
     const x = randNum(2);
     const w = randNum(3);
-    return { x, w };
+    return new Input(x, w);
 });
 
 export default generatedInputs

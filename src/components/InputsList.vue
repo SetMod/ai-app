@@ -1,7 +1,7 @@
 <template>
   <div class="inputs">
     <div
-      v-for="(input, index) in inputs.value"
+      v-for="(input, index) in inputs.inputs"
       :key="index"
       class="inputs__cell"
       :class="{
@@ -28,13 +28,13 @@
 </template>
 
 <script lang="ts">
-import IStoreInputs from "@/interfaces/IStoreInputs";
+import IInputs from "@/interfaces/IInputs";
 import { defineComponent, PropType } from "vue";
 
 export default defineComponent({
   props: {
     inputs: {
-      type: Object as PropType<IStoreInputs>,
+      type: Object as PropType<IInputs>,
       required: true,
     },
   },

@@ -2,26 +2,14 @@
   <section>
     <div class="presets">
       Presets:
-      <div
-        class="presets__cell"
-        v-for="(input, index) in presets.value"
-        :key="index"
-      >
+      <div class="presets__cell" v-for="(input, index) in presets.presets" :key="index">
         <p>#{{ index + 1 }} {{ input.result ? "even" : "odd" }}</p>
         <button
           class="presets__load"
           @click="inputs.setX(presets.getPreset(index).inputs)"
           :key="index"
-        >
-          Load
-        </button>
-        <button
-          class="presets__delete"
-          @click="presets.deletePreset(index)"
-          :key="index"
-        >
-          Delete
-        </button>
+        >Load</button>
+        <button class="presets__delete" @click="presets.deletePreset(index)" :key="index">Delete</button>
       </div>
     </div>
     <button @click="presets.resetPresets()">Clear</button>
@@ -29,18 +17,18 @@
 </template>
 
 <script lang="ts">
-import IStoreInputs from "@/interfaces/IStoreInputs";
-import IStorePresets from "@/interfaces/IStorePresets";
+import IInputs from "@/interfaces/IInputs";
+import IPresets from "@/interfaces/IPresets";
 import { defineComponent, PropType } from "vue";
 
 export default defineComponent({
   props: {
     presets: {
-      type: Object as PropType<IStorePresets>,
+      type: Object as PropType<IPresets>,
       required: true,
     },
     inputs: {
-      type: Object as PropType<IStoreInputs>,
+      type: Object as PropType<IInputs>,
       required: true,
     },
   },
