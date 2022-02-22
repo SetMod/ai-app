@@ -1,32 +1,33 @@
-import IStoreInputs from "@/interfaces/IStoreInputs"
-import IStorePresets from "@/interfaces/IStorePresets"
-import IInputs from "../interfaces/IInputs"
+import IInputs from "@/interfaces/IInputs"
+import INeuron from "@/interfaces/INeuron"
+import IPresets from "@/interfaces/IPresets"
+import IInput from "../interfaces/IInput"
 
-export default class Neuron {
-    inputs: IStoreInputs
+export default class Neuron implements INeuron {
+    inputs: IInputs
     Sum: number
     teta: number
     iterations: number
 
-    constructor(inputs: IStoreInputs, teta: number) {
+    constructor(inputs: IInputs, teta: number) {
         this.inputs = inputs
         this.teta = teta
         this.Sum = 0
         this.iterations = 0
     }
 
-    public result(): number {
+    result(): number {
         this.Sum = 0
-        this.inputs.value.forEach((input: IInputs) => {
+        this.inputs.inputs.forEach((input: IInput) => {
             this.Sum += (input.x * input.w)
         })
 
         return this.Sum >= this.teta ? 1 : 0
     }
 
-    public learn(presets: IStorePresets) {
+    learn(presets: IPresets) {
         this.iterations = 0;
-        const MAX_ITERATIONS = 10000
+        const MAX_ITERATIONS = 1000
         console.log(`\n\n[${new Date()}] [INFO] Starting learning process...`);
         console.time();
         // loop trough presets
@@ -34,7 +35,7 @@ export default class Neuron {
         while (!allTrue) {
             let isCorrect = true
             console.log("\n----------------------");
-            presets.value.forEach((preset, index) => {
+            presets.presets.forEach((preset, index) => {
                 // assign preset x's to inputs x's
                 this.inputs.setX(presets.getPreset(index).inputs);
                 // get the result y
