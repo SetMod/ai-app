@@ -8,7 +8,6 @@ export default class MatNeuron {
     epsilon: number = 1
     delta: number = 1
     iterations: number = 0
-    y: number = 0
     MAX_ITERATIONS: number = 1000
 
     constructor(inputs: number[], weights: number[], id: number, eta: number = 1) {
@@ -23,8 +22,7 @@ export default class MatNeuron {
     }
     predictSigma(inputs?: number[]) {
         const sum = this.getSum(inputs)
-        this.y = 1 / (1 + Math.E ^ (-sum))
-        return this.y
+        return 1 / (1 + Math.E ^ (-sum))
     }
     getSum(inputs?: number[]) {
         if (inputs)
