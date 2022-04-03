@@ -58,13 +58,15 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
 }
-.result {
-  padding: 0.5rem;
-  display: flex;
-  background-color: #c93c3c;
+.flex > section {
+  padding: 0 15px 0 0;
 }
-.result__green {
-  background-color: #4dc93c;
+.flex > section:last-child {
+  padding: 0;
+}
+.result {
+  font-weight: bolder;
+  font-size: 2rem;
 }
 .teta {
   margin: 1rem 0;
