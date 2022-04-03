@@ -1,25 +1,89 @@
 <template>
   <section>
-    <div class="presets">
-      Presets:
-      <div class="presets__cell" v-for="(input, index) in presets.presets" :key="index">
-        <p>#{{ index + 1 }} {{ input.result ? "even" : "odd" }}</p>
+    <h2>Presets:</h2>
+    <!--------------------------------------lb3-------------------------------------->
+    <section v-if="desiredResults">
+      <section>
+        <button @click="addPreset(selectedDesire)">Add</button>
+        <select name="desiredResults" v-model="selectedDesire" :required="true">
+          <option :value="0" selected>Select letter</option>
+          <option
+            v-for="desired in desiredResults"
+            :value="desired.id"
+            :key="desired.id"
+          >{{ desired.name }}</option>
+        </select>
+        <button @click="loadSavedPresets">Load saved presets</button>
+      </section>
+
+      <section v-show="presets.presets.length">
+        <select name="presets" v-model="selectedPreset" :required="true">
+          <option :value="0" selected>Select preset</option>
+          <option
+            v-for="(preset, index) in presets.presets"
+            :key="index"
+            :value="index"
+          >#{{ index + 1 }} | {{ desiredResults[preset.value].name }}</option>
+        </select>
+      </section>
+    </section>
+    <!--------------------------------------lb2-------------------------------------->
+    <section v-else>
+      <section>
+        <button @click="addPreset(1)">Even</button>
+        <button @click="addPreset(0)">Odd</button>
+      </section>
+
+      <section v-show="presets.presets.length">
+        <select name="presets" v-model="selectedPreset" :required="true">
+          <option :value="0" selected>Select preset</option>
+          <option
+            v-for="(preset, index) in presets.presets"
+            :key="index"
+            :value="index"
+          >#{{ index + 1 }} {{ preset.value ? "even" : "odd" }}</option>
+        </select>
+      </section>
+    </section>
+    <!----------------------------------------------------------------------------------->
+    <section class="buttons" v-show="presets.presets.length">
+      <button
+        class="presets__load"
+        @click="signals.setInputs(presets.getPreset(selectedPreset).inputs)"
+      >Load</button>
+      <button class="presets__delete" @click="presets.deletePreset(selectedPreset)">Delete</button>
+      <button @click="presets.resetPresets()">Clear</button>
+    </section>
+
+    <!-- <div class="presets">
+      <div class="presets__cell" v-for="(preset, index) in presets.presets" :key="index">
+        <div v-if="desiredResults">
+          <p>#{{ index + 1 }} | {{ desiredResults[preset.value].name }}</p>
+        </div>
+        <div v-else>
+          <p>#{{ index + 1 }} {{ preset.value ? "even" : "odd" }}</p>
+        </div>
+
         <button
           class="presets__load"
-          @click="inputs.setX(presets.getPreset(index).inputs)"
+          @click="signals.setInputs(presets.getPreset(index).inputs)"
           :key="index"
         >Load</button>
+
         <button class="presets__delete" @click="presets.deletePreset(index)" :key="index">Delete</button>
       </div>
-    </div>
-    <button @click="presets.resetPresets()">Clear</button>
+    </div>-->
   </section>
 </template>
 
 <script lang="ts">
-import IInputs from "@/interfaces/IInputs";
 import IPresets from "@/interfaces/IPresets";
-import { defineComponent, PropType } from "vue";
+import { IDesiredResult } from "@/hooks/useInputs";
+import { defineComponent, PropType, ref } from "vue";
+import ISignals from "@/interfaces/ISignals";
+import IInputs from "@/interfaces/IInputs";
+import Preset from "@/models/Preset";
+import { generatePresets } from "@/helpers/generatePresets";
 
 export default defineComponent({
   props: {
@@ -27,11 +91,34 @@ export default defineComponent({
       type: Object as PropType<IPresets>,
       required: true,
     },
-    inputs: {
-      type: Object as PropType<IInputs>,
+    signals: {
+      type: Object as PropType<ISignals>,
       required: true,
     },
+    inputs: {
+      type: Object as PropType<IInputs>,
+    },
+    desiredResults: {
+      type: Object as PropType<Array<IDesiredResult>>
+    }
   },
+  setup(props) {
+    const selectedDesire = ref(0)
+    const selectedPreset = ref(0)
+    const addPreset = (result: number) => {
+      const inputs = props.signals.getInputs()
+      props.presets.addPreset(new Preset(result, inputs))
+    };
+    const loadSavedPresets = () => {
+      props.presets.setPresets(generatePresets())
+    }
+    return {
+      loadSavedPresets,
+      selectedDesire,
+      selectedPreset,
+      addPreset
+    }
+  }
 });
 </script>
 

@@ -64,7 +64,7 @@ export default defineComponent({
       }
     }));
     const { presets } = usePresets();
-    const { results, neuronLearn, neuronResult, } = useMatNeurons(reactive<IMatNeuronsOptions>({
+    const { results, neuronLearn, neuronResult } = useMatNeurons(reactive<IMatNeuronsOptions>({
       signals: signals.value,
       matNeuronAmount: matNeuronAmount,
       eta: eta.value

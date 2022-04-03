@@ -1,11 +1,11 @@
 import IPreset from "@/interfaces/IPreset";
 
 export default class Preset implements IPreset {
+    value: number;
     inputs: number[];
-    result: number;
 
-    constructor(result: number, inputs: number[]) {
-        this.result = result
+    constructor(value: number, inputs: number[]) {
+        this.value = value
         this.inputs = inputs
     }
 }

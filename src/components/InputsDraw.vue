@@ -2,30 +2,48 @@
   <div>
     <div class="square">
       <div
-        v-for="(input, index) in inputs.inputs"
-        @click="inputs.setReverseInput(index)"
+        v-for="(input, index) in signals.inputs"
         :key="index"
+        v-show="index"
+        @mouseenter="(e) => enter(e, index)"
+        @mousedown="signals.setReverseInput(index)"
         class="square__cell"
-        :class="{ square__cell__over: !!input.x }"
-      >
-        {{ index }}
-      </div>
+        :class="{ square__cell__over: !!input }"
+      ></div>
     </div>
-    <button @click="inputs.resetInputs()">Clear</button>
+    <button @click="signals.resetInputs()">Clear</button>
   </div>
 </template>
 
 <script lang="ts">
 import IInputs from "@/interfaces/IInputs";
+import ISignals from "@/interfaces/ISignals";
 import { defineComponent, PropType } from "vue";
 
 export default defineComponent({
   props: {
     inputs: {
       type: Object as PropType<IInputs>,
+    },
+    signals: {
+      type: Object as PropType<ISignals>,
       required: true,
     },
   },
+  setup(props) {
+    const enter = (event: MouseEvent, index: number) => {
+      if (event.buttons === 1) {
+        if (props.signals.inputs[index] !== 1)
+          props.signals.setReverseInput(index)
+      } else if (event.buttons === 2) {
+        if (props.signals.inputs[index] === 1)
+          props.signals.setReverseInput(index)
+      }
+    }
+    return {
+      enter,
+    }
+  }
 });
 </script>
 

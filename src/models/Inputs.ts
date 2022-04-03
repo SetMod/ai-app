@@ -4,8 +4,8 @@ import IInputs from "@/interfaces/IInputs"
 export default class Inputs implements IInputs {
     inputs: Array<IInput>
 
-    constructor() {
-        this.inputs = new Array<IInput>()
+    constructor(inputs?: Array<IInput>) {
+        this.inputs = inputs ? inputs : new Array<IInput>()
     }
 
     setInputs(inputs: Array<IInput>) {
@@ -55,8 +55,8 @@ export default class Inputs implements IInputs {
     }
 
     resetInputs() {
-        this.inputs.forEach((input) => {
-            input.x = 0;
+        this.inputs.forEach((input, index) => {
+            input.x = index === 0 ? 1 : 0;
         });
     }
 }

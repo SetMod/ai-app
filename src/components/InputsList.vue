@@ -1,27 +1,23 @@
 <template>
   <div class="inputs">
     <div
-      v-for="(input, index) in inputs.inputs"
+      v-for="(input, index) in signals.inputs"
       :key="index"
       class="inputs__cell"
       :class="{
-        inputs__cell__green: !!input.x,
+        inputs__cell__green: !!input,
       }"
     >
       <div>
         <label>x:</label>
-        <input
-          type="number"
-          min="0"
-          max="1"
-          v-model.number="input.x"
-          :key="index"
-        />
+        <span>{{ signals.inputs[index] }}</span>
+        <!-- <input type="number" min="0" max="1" v-model.number="signals.inputs[index]" :key="index" /> -->
       </div>
 
       <div>
         <label>w:</label>
-        <input type="number" v-model.number="input.w" step="0.1" :key="index" />
+        <span>{{ signals.weights[0][index] }}</span>
+        <!-- <input type="number" v-model.number="signals.weights[0][index]" step="0.1" :key="index" /> -->
       </div>
     </div>
   </div>
@@ -29,12 +25,16 @@
 
 <script lang="ts">
 import IInputs from "@/interfaces/IInputs";
+import ISignals from "@/interfaces/ISignals";
 import { defineComponent, PropType } from "vue";
 
 export default defineComponent({
   props: {
     inputs: {
       type: Object as PropType<IInputs>,
+    },
+    signals: {
+      type: Object as PropType<ISignals>,
       required: true,
     },
   },

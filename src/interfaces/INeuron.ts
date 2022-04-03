@@ -3,9 +3,10 @@ import IPresets from "./IPresets";
 
 export default interface INeuron {
     inputs: IInputs;
-    Sum: number;
-    teta: number;
+    sum: number;
     iterations: number;
+    epsilon: number;
+    eta: number;
     result: () => number;
-    learn: (presets: IPresets) => void;
+    learn: (presets: IPresets, desiredId?: number) => void;
 }

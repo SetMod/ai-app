@@ -2,45 +2,32 @@
   <section>
     <div class="container">
       <h2>Neuron</h2>
-      <section>
-        <div class="flex">
-          <p>Result is :</p>
-          <div
-            class="result"
-            :class="{
-              result__green: !!result,
-            }"
-          >{{ result ? "even" : "odd" }}</div>
+      <section class="flex">
+        <PresetsList :signals="signals" :presets="presets" />
+        <div>
+          <div class="flex">
+            Result is :
+            <span class="result">{{ neuronResult ? "even" : "odd" }}</span>
+          </div>
+          <div>Iterations: {{ matNeuron.iterations }}</div>
+          <button class="learn" @click="matNeuron.learn(presets.presets, 'lb2')">Learn</button>
         </div>
-        <button @click="even">Even</button>
-        <button @click="odd">Odd</button>
-      </section>
-      <section>
-        <button class="learn" @click="learn">Learn</button>
-        <div>Iterations: {{ iterations }}</div>
-        <PresetsList :inputs="inputs" :presets="presets" />
       </section>
 
-      <section class="teta">
-        <label>Teta:</label>
-        <input type="number" v-model.number="teta" />
-      </section>
-
-      <InputsDraw :inputs="inputs" />
-      <InputsList :inputs="inputs" />
+      <InputsDraw :signals="signals" />
+      <InputsList :signals="signals" />
     </div>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, reactive } from "vue";
 import InputsList from "@/components/InputsList.vue";
 import InputsDraw from "@/components/InputsDraw.vue";
 import PresetsList from "@/components/PresetsList.vue";
-import useInputs from "@/store/useInputs";
-import usePresets from "@/store/usePresets";
-import useNeuron from "@/store/useNeuron";
-import Preset from "@/models/Preset";
+import usePresets from "@/hooks/usePresets";
+import useSignals, { ISignalsOptions } from "@/hooks/useSignals";
+import useMatNeuron, { IMatNeuronOptions } from "@/hooks/useMatNeuron";
 
 export default defineComponent({
   components: {
@@ -49,31 +36,33 @@ export default defineComponent({
     PresetsList,
   },
   setup() {
-    const { inputs, teta, } = useInputs();
+    const { signals } = useSignals(reactive<ISignalsOptions>({
+      arrayLength: 36,
+      inputs: {
+        arrayAmount: 1,
+        numberRange: {
+          min: 0,
+          max: 2
+        }
+      },
+      weights: {
+        arrayAmount: 1,
+        numberRange: {
+          min: 0,
+          max: 5
+        }
+      }
+    }));
     const { presets } = usePresets();
-    const { neuron, result, iterations, } = useNeuron(inputs.value, teta.value);
-
-    const learn = () => {
-      neuron.value.learn(presets.value);
-    };
-
-    const even = () => {
-      presets.value.addPreset(new Preset(1, inputs.value.getInputs()));
-    };
-
-    const odd = () => {
-      presets.value.addPreset(new Preset(0, inputs.value.getInputs()));
-    };
+    const { matNeuron, neuronResult } = useMatNeuron(reactive<IMatNeuronOptions>({
+      signals: signals.value,
+    }))
 
     return {
-      result,
-      inputs,
-      teta,
-      iterations,
+      neuronResult,
+      signals,
       presets,
-      even,
-      odd,
-      learn,
+      matNeuron,
     };
   },
 });

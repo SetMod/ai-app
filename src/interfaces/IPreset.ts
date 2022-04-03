@@ -1,4 +1,4 @@
 export default interface IPreset {
-    result: number
+    value: number
     inputs: number[]
 }

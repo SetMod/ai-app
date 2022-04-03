@@ -2,7 +2,7 @@ import IPreset from "@/interfaces/IPreset";
 import { reactive, toRefs } from "vue";
 import randNum from "@/helpers/random";
 import IInput from "@/interfaces/IInput";
-import generatedInputs from "@/helpers/generateinputs";
+import generatedInputs from "@/helpers/generateInputs";
 
 export const store = reactive({
     teta: randNum(15),
