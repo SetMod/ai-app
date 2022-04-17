@@ -1,7 +1,7 @@
 import IPreset from "@/interfaces/IPreset";
 import ISignals from "@/interfaces/ISignals";
 import MatNeuron from "@/models/MatNeuron";
-import { computed, reactive } from "vue";
+import { computed, reactive, ref } from "vue";
 
 export interface IMatNeuronsOptions {
     signals: ISignals
@@ -14,40 +14,53 @@ export default function useMatNeurons(matNeuronOptions: IMatNeuronsOptions) {
     const matNeurons = reactive(Array.from({ length: matNeuronAmount }, (_, index) => {
         return new MatNeuron(signals.inputs, signals.weights[index], index, eta)
     }))
+    const localVariant = ref("lb3")
+
     const results = reactive({
-        iterations: new Array(matNeuronAmount),
-        predictions: new Array(matNeuronAmount),
-        sigmas: new Array(matNeuronAmount),
-        epsilons: new Array(matNeuronAmount),
-        epsilon: 0
+        iterations: new Array<number>(matNeuronAmount),
+        predictions: new Array<number>(matNeuronAmount),
+        sigmas: new Array<number>(matNeuronAmount),
+        epsilons: new Array<number>(matNeuronAmount),
+        deltas: new Array<number>(matNeuronAmount),
     })
 
-    const neuronLearn = (presets: Array<IPreset>, lb: string = "lb3") => {
+    const neuronLearn = (presets: Array<IPreset>, variant: string = localVariant.value) => {
+        localVariant.value = variant;
         const start = Date.now();
+
         matNeurons.forEach((neuron, i) => {
-            neuron.learn(presets, lb)
+            neuron.learn(presets, variant)
+            results.predictions[i] = selectPrediction(neuron, [], variant)
+            results.sigmas[i] = neuron.predictSigma()
             results.iterations[i] = neuron.iterations
             results.epsilons[i] = neuron.epsilon
-            results.predictions[i] = neuron.predict()
-            results.sigmas[i] = neuron.predictSigma()
+            results.deltas[i] = neuron.delta
         })
-        results.epsilons.forEach((epsilon) => {
-            results.epsilon += epsilon ^ 2
-        })
-        results.epsilon = results.epsilon * 0.5
+
         const duration = Date.now() - start;
         console.log(`\n\nExecution time: ${duration}ms | ${duration / 1000}s`);
 
     }
+
+    const selectPrediction = (neuron: MatNeuron, inputs: number[] = [], variant: string) => {
+        switch (variant) {
+            case "lb4":
+                return neuron.predictSigma(inputs)
+            default:
+                return neuron.predictStep(inputs)
+        }
+    }
+
     const neuronResult = computed(() => {
-        let id = 0
         matNeurons.forEach((neuron, i) => {
+            results.predictions[i] = selectPrediction(neuron, signals.inputs, localVariant.value)
+            results.sigmas[i] = neuron.predictSigma()
             results.iterations[i] = neuron.iterations
-            results.predictions[i] = neuron.predict(signals.inputs)
-            if (results.predictions[i])
-                id = neuron.id
+            results.epsilons[i] = neuron.epsilon
+            results.deltas[i] = neuron.delta
         })
-        return id;
+        const maxVal = Math.max(...results.predictions)
+        return results.predictions.indexOf(maxVal)
     });
     return {
         matNeurons,

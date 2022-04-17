@@ -5,10 +5,13 @@ export default class MatNeuron {
     weights: number[]
     eta: number
     id: number
+    errorThreshold: number = 0.005
     epsilon: number = 1
     delta: number = 1
     iterations: number = 0
-    MAX_ITERATIONS: number = 1000
+    precision: number = 10000
+    MAX_ITERATIONS: number = 100
+    varian: string = "lb2"
 
     constructor(inputs: number[], weights: number[], id: number, eta: number = 1) {
         this.inputs = inputs
@@ -16,26 +19,9 @@ export default class MatNeuron {
         this.id = id
         this.eta = eta >= 0.05 || eta <= 1 ? eta : 1
     }
-    predict(inputs?: number[]): number {
-        const sum = this.getSum(inputs)
-        return sum >= 0 ? 1 : 0
-    }
-    predictSigma(inputs?: number[]) {
-        const sum = this.getSum(inputs)
-        return 1 / (1 + Math.E ^ (-sum))
-    }
-    getSum(inputs?: number[]) {
-        if (inputs)
-            this.setNeuronInputs(inputs)
-        let sum = 0
-        for (let index = 0; index < this.inputs.length; index++) {
-            const input = this.inputs[index]
-            const weight = this.weights[index]
-            sum += (input * weight)
-        }
-        return sum
-    }
-    learn(presets: Array<IPreset>, lb: string) {
+
+    learn(presets: Array<IPreset>, variant: string) {
+        this.varian = variant;
         this.iterations = 0
         console.log(`\n\n\n[${new Date()}]`)
         console.log(`[INFO] Neuron [${this.id}] | Starting learning process...`)
@@ -47,7 +33,7 @@ export default class MatNeuron {
 
             presets.forEach((preset, index) => {
                 console.log(`[INFO] Preset #${index + 1}, Iteration #${this.iterations}`)
-                const isCorrect = this.learnOnPreset(preset, lb)
+                const isCorrect = this.learnOnPreset(preset)
                 if (!isCorrect && isPredictionsCorrect)
                     isPredictionsCorrect = false
             })
@@ -63,48 +49,96 @@ export default class MatNeuron {
         console.timeEnd()
         console.log(`\n\n[${new Date()}] [INFO] Done in #${this.iterations} iterations.\n\n`)
     }
-    learnOnPreset(preset: IPreset, lb: string) {
-        const desired = this.getDesiredFromPreset(lb, preset.value)
-        const result = this.predict(preset.inputs)
-        console.log(`[INFO] Desired result [${desired}], got [${result}]`)
 
-        this.epsilon = desired - result
-        this.delta = result * (1 - result) * (desired - result)
-        return this.checkEpsilon()
-    }
-    setNeuronInputs(inputs: number[]) {
-        this.inputs = inputs
-    }
-    getDesiredFromPreset(lb: string, presetVal: number) {
-        switch (lb) {
-            case "lb2":
-                return presetVal // Lb2 - <0,1>
+    learnOnPreset(preset: IPreset) {
+        let des
+        let res
+        switch (this.varian) {
             case "lb3":
-                return presetVal === this.id ? 1 : 0 // Lb3 - <0,1,..,32>
+                des = preset.value === this.id ? 1 : 0
+                res = this.predictStep(preset.inputs)
+                this.epsilon = des - res
+                console.log(`[INFO] Desired result [${des}], got [${res}]`)
+                return this.activateByEpsilon()
+            case "lb4":
+                des = preset.value === this.id ? 1 : 0
+                res = this.predictSigma(preset.inputs)
+                this.delta = this.round(res * (1 - res) * (des - res))
+                console.log(`[INFO] Desired result [${des}], got [${res}]`)
+                console.log(`\tSum [${this.getSum()}]`);
+                console.log(`\tSigmoid [${res}]`);
+                console.log(`\tDelta [${this.delta}]`);
+                return this.activateByDelta()
             default:
-                return presetVal
+                des = preset.value
+                res = this.predictStep(preset.inputs)
+                this.epsilon = des - res
+                console.log(`[INFO] Desired result [${des}], got [${res}]`)
+                return this.activateByStep(res, des)
         }
     }
-    checkEpsilon() {
-        if (this.epsilon > 0) {
-            console.log(`\tIncreasing weights`)
-            this.correctWeights()
-            return false
-        }
-        else if (this.epsilon < 0) {
-            console.log(`\tDecreasing weights`)
+
+    round(value: number) {
+        return Math.round(value * this.precision) / this.precision
+    }
+    static round(value: number, precision: number = 10000): number {
+        return Math.round(value * precision) / precision
+    }
+
+    predictStep(inputs?: number[]): number {
+        const sum = this.getSum(inputs)
+        return sum >= 0 ? 1 : 0
+    }
+
+    predictSigma(inputs?: number[]) {
+        const sum = this.getSum(inputs)
+        return this.round(1 / (1 + Math.pow(Math.E, -sum)))
+    }
+
+    getSum(inputs?: number[]) {
+        if (inputs) this.inputs = inputs.length ? inputs : this.inputs
+        let sum = 0
+        for (let index = 0; index < this.inputs.length; index++)
+            sum += this.inputs[index] * this.weights[index]
+        return sum
+    }
+
+    activateByEpsilon() {
+        if (this.epsilon !== 0) {
+            console.log('\tCorrecting weights')
             this.correctWeights()
             return false
         }
         return true
     }
+
+    activateByDelta() {
+        console.log('\tCorrecting weights')
+        this.correctWeights()
+        return false
+    }
+
+    activateByStep(res: number, des: number) {
+        if (des !== res) {
+            console.log('\tCorrecting weights')
+            this.correctWeights()
+            return false
+        }
+        return true
+    }
+
     correctWeights() {
         this.inputs.forEach((input, index) => {
-            if (input > 0) {
-                let weight = this.weights[index]
-                weight += this.eta * this.epsilon * input
-                this.weights[index] = weight
-            }
+            if (input > 0) this.weights[index] += this.getDeltaWeights(input)
         })
+    }
+
+    getDeltaWeights(input: number) {
+        switch (this.varian) {
+            case "lb4":
+                return this.eta * this.delta * input
+            default:
+                return this.eta * this.epsilon * input
+        }
     }
 }

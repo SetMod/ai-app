@@ -8,7 +8,7 @@
           <label>Speed:</label>
           <input v-model="eta" type="number" name="eta" id="eta" min="0.05" max="1" step="0.01" />
         </div>
-        <button class="learn" @click="neuronLearn(presets.presets, 'lb3')">Learn</button>
+        <button class="learn" @click="neuronLearn(presets.presets, 'lb4')">Learn</button>
       </section>
 
       <section class="flex">
@@ -20,6 +20,7 @@
           </div>
           <p>Predictions: {{ results.predictions }}</p>
           <p>Iterations: {{ results.iterations }}</p>
+          <p>Deltas: {{ results.deltas }}</p>
         </section>
       </section>
 
@@ -52,14 +53,14 @@ export default defineComponent({
         arrayAmount: 1,
         numberRange: {
           min: 0,
-          max: 2
+          max: 1
         }
       },
       weights: {
         arrayAmount: matNeuronAmount,
         numberRange: {
-          min: 0,
-          max: 5
+          min: -1,
+          max: 1
         }
       }
     }));
