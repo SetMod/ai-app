@@ -52,14 +52,14 @@ export default defineComponent({
         arrayAmount: 1,
         numberRange: {
           min: 0,
-          max: 2
+          max: 1
         }
       },
       weights: {
         arrayAmount: matNeuronAmount,
         numberRange: {
-          min: 0,
-          max: 5
+          min: -1,
+          max: 1
         }
       }
     }));

@@ -7,7 +7,7 @@ import { IDesiredResult } from "@/hooks/useInputs";
 
 export function between(min: number, max: number): number {
     return Math.floor(
-        Math.random() * (max - min) + min
+        Math.random() * (max + 1 - min) + min
     )
 }
 
@@ -62,7 +62,6 @@ export const generateDesiredResults = (): Array<IDesiredResult> => {
     ]
     for (let index = 0; index < UkrainianAlphabet.length; index++) {
         desiredResults.push({ id: index, name: UkrainianAlphabet[index] })
-
     }
     return desiredResults;
 }
