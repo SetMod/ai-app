@@ -2,6 +2,7 @@ import Home from "@/views/Home.vue"
 import LB2 from "@/views/LB2.vue"
 import LB3 from "@/views/LB3.vue"
 import LB4 from "@/views/LB4.vue"
+import LB5 from "@/views/LB5.vue"
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
 
 export const routes: Array<RouteRecordRaw> = [
@@ -24,6 +25,11 @@ export const routes: Array<RouteRecordRaw> = [
         path: '/lb4',
         name: "LB4",
         component: LB4
+    },
+    {
+        path: '/lb5',
+        name: "LB5",
+        component: LB5
     },
 ]
 

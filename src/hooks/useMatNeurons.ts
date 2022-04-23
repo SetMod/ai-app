@@ -1,18 +1,17 @@
 import IPreset from "@/interfaces/IPreset";
 import ISignals from "@/interfaces/ISignals";
-import MatNeuron from "@/models/MatNeuron";
+import MatNeuron, { ILearnOptions } from "@/models/MatNeuron";
 import { computed, reactive, ref } from "vue";
 
 export interface IMatNeuronsOptions {
     signals: ISignals
     matNeuronAmount: number
-    eta: number
 }
 
 export default function useMatNeurons(matNeuronOptions: IMatNeuronsOptions) {
-    const { signals, matNeuronAmount, eta } = matNeuronOptions
+    const { signals, matNeuronAmount } = matNeuronOptions
     const matNeurons = reactive(Array.from({ length: matNeuronAmount }, (_, index) => {
-        return new MatNeuron(signals.inputs, signals.weights[index], index, eta)
+        return new MatNeuron(signals.inputs, signals.weights[index], index)
     }))
     const localVariant = ref("lb3")
 
@@ -24,13 +23,13 @@ export default function useMatNeurons(matNeuronOptions: IMatNeuronsOptions) {
         deltas: new Array<number>(matNeuronAmount),
     })
 
-    const neuronLearn = (presets: Array<IPreset>, variant: string = localVariant.value) => {
-        localVariant.value = variant;
+    const neuronLearn = (presets: Array<IPreset>, options: ILearnOptions) => {
+        localVariant.value = options.variant || localVariant.value;
         const start = Date.now();
 
         matNeurons.forEach((neuron, i) => {
-            neuron.learn(presets, variant)
-            results.predictions[i] = selectPrediction(neuron, [], variant)
+            neuron.learnOnPresets(presets, options)
+            results.predictions[i] = selectPrediction(neuron, [], localVariant.value)
             results.sigmas[i] = neuron.predictSigma()
             results.iterations[i] = neuron.iterations
             results.epsilons[i] = neuron.epsilon

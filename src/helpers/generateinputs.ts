@@ -5,13 +5,26 @@ import Input from "@/models/Input";
 import Inputs from "@/models/Inputs";
 import { IDesiredResult } from "@/hooks/useInputs";
 
-export function between(min: number, max: number): number {
+export function between(min: number, max: number, precision: number = 10): number {
+    min *= precision
+    max *= precision
     return Math.floor(
         Math.random() * (max + 1 - min) + min
-    )
+    ) / precision
 }
 
-export const generateRandomArray = (arrayLength: number, arrayAmount: number, numberRange: { min: number, max: number }): number[][] => {
+export interface GeneratorOptions {
+    arrayLength: number
+    arrayAmount: number
+    numberRange: {
+        min: number,
+        max: number
+        precision: number
+    }
+}
+
+export const generateRandomArray = (options: GeneratorOptions): number[][] => {
+    const { arrayAmount, arrayLength, numberRange } = options
     const arrayOut = []
     for (let i = 0; i < arrayAmount; i++) {
         const arrayIn = []
@@ -19,7 +32,7 @@ export const generateRandomArray = (arrayLength: number, arrayAmount: number, nu
             if (j === 0) {
                 arrayIn[j] = 1;
             } else {
-                arrayIn[j] = between(numberRange.min, numberRange.max);
+                arrayIn[j] = between(numberRange.min, numberRange.max, numberRange.precision);
             }
         }
         arrayOut[i] = arrayIn;

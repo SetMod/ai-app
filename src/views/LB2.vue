@@ -10,7 +10,7 @@
             <span class="result">{{ neuronResult ? "even" : "odd" }}</span>
           </div>
           <div>Iterations: {{ matNeuron.iterations }}</div>
-          <button class="learn" @click="matNeuron.learn(presets.presets, 'lb2')">Learn</button>
+          <button class="learn" @click="matNeuron.learnOnPresets(presets.presets)">Learn</button>
         </div>
       </section>
 
@@ -42,14 +42,16 @@ export default defineComponent({
         arrayAmount: 1,
         numberRange: {
           min: 0,
-          max: 1
+          max: 1,
+          precision: 1
         }
       },
       weights: {
         arrayAmount: 1,
         numberRange: {
           min: -1,
-          max: 1
+          max: 1,
+          precision: 1
         }
       }
     }));

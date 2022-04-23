@@ -23,7 +23,7 @@ export default function useInputs(options?: IInputsOptions) {
         weights: generateRandomArray(35, 33, { min: 0, max: 6 }) // 33 of x's and w's items, 1 array of x's and 33 of arrays of w's
     })
     const inputsArray = ref(new Array<IInputs>())
-    if (options !== undefined) {
+    if (options) {
         desiredResults.value = options.desiredResults
         const inputsAmount = options.inputsAmount
         const weightsAmount = options.weightsAmount
