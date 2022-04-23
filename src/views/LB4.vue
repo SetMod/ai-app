@@ -8,7 +8,7 @@
           <label>Speed:</label>
           <input v-model="eta" type="number" name="eta" id="eta" min="0.05" max="1" step="0.01" />
         </div>
-        <button class="learn" @click="neuronLearn(presets.presets, { variant: 'lb4' })">Learn</button>
+        <button class="learn" @click="neurons.learn(presets.presets, learnOptions)">Learn</button>
       </section>
 
       <section class="flex">
@@ -16,11 +16,8 @@
         <section>
           <div class="flex">
             Result is :
-            <span class="result">{{ desiredResults[neuronResult].name }}</span>
+            <span class="result">{{ desiredResults[results].name }}</span>
           </div>
-          <p>Predictions: {{ results.predictions }}</p>
-          <p>Iterations: {{ results.iterations }}</p>
-          <p>Deltas: {{ results.deltas }}</p>
         </section>
       </section>
 
@@ -37,6 +34,7 @@ import PresetsList from "@/components/PresetsList.vue";
 import usePresets from "@/hooks/usePresets";
 import useSignals, { ISignalsOptions } from "@/hooks/useSignals";
 import useMatNeurons, { IMatNeuronsOptions } from "@/hooks/useMatNeurons";
+import { ILearnOptions } from "@/models/MatNeuron";
 
 export default defineComponent({
   components: {
@@ -67,17 +65,24 @@ export default defineComponent({
       }
     }));
     const { presets } = usePresets();
-    const { results, neuronLearn, neuronResult } = useMatNeurons(reactive<IMatNeuronsOptions>({
+    const { results, neurons } = useMatNeurons(reactive<IMatNeuronsOptions>({
       signals: signals.value,
       matNeuronAmount: matNeuronAmount,
+      variant: 'lb4'
     }))
+    const learnOptions = ref<ILearnOptions>({
+      variant: 'lb4',
+      errorThreshold: 0.005,
+      eta: eta.value,
+      maxIterations: 300
+    })
     return {
-      neuronResult,
       signals,
       presets,
       results,
-      neuronLearn,
+      neurons,
       eta,
+      learnOptions,
       desiredResults,
     };
   },

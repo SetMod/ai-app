@@ -12,7 +12,7 @@ export interface IMatNeuronLayers {
     layers: MatNeuronLayer[]
     layersOptions: ILayerOptions[]
     log: boolean
-    initLayers: (inputs: number[]) => void
+    initLayers: (inputs: number[], variant: string) => void
     learn: (presets: Array<IPreset>, options: ILayersLearnOptions) => void
     forwardRun: (inputs: number[]) => void
     backPropagation: (preset: IPreset, options: { eta: number, variant: string }) => void
@@ -31,16 +31,16 @@ export class MatNeuronLayers implements IMatNeuronLayers {
         this.layersOptions = layersOptions
     }
 
-    initLayers(inputs: number[] = []): void {
+    initLayers(inputs: number[] = [], variant: string): void {
         this.print('Initializing layers:');
         this.print(`Layers amount: ${this.layers.length}`);
-        for (let layerId = 0; layerId < this.layers.length; layerId++) {
 
+        for (let layerId = 0; layerId < this.layers.length; layerId++) {
             const layerOptions = this.layersOptions[layerId]
             const layer = new MatNeuronLayer(layerOptions, layerId)
             const prevLayer = this.layers[layerId - 1]
 
-            layer.initHiddenLayer(inputs, prevLayer)
+            layer.initHiddenLayer(inputs, variant, prevLayer)
             this.layers[layerId] = layer
         }
         // this.printLayers()
@@ -49,18 +49,19 @@ export class MatNeuronLayers implements IMatNeuronLayers {
     learn(presets: Array<IPreset>, options: ILayersLearnOptions): void {
         this.print('\nLearn options:', options);
         this.print('\nStarting learning...');
+        const { errorThreshold, eta, maxIterations, variant } = options
+        const start = Date.now();
         let iteration = 0
-        while (iteration <= options.maxIterations) {
+        while (iteration < maxIterations) {
             presets.forEach((preset, q) => {
                 // this.print(`Preset[${q}]: `, preset);
                 this.forwardRun(preset.inputs)
-                this.backPropagation(preset, { eta: options.eta, variant: options.variant })
+                this.backPropagation(preset, { eta, variant })
             })
             const outputLayer = this.getOutputLayer()
-
             const error = this.errorMeanSquare(presets, outputLayer)
-            this.print(`iteration[${iteration}]: error=${error}; threshold=${options.errorThreshold}`);
-            if (error <= options.errorThreshold) break
+            this.print(`iteration[${iteration}]: error=${error}; threshold=${errorThreshold}`);
+            if (error <= errorThreshold) break
 
             // const errorMaxDiff = this.errorMaxDiff(presets, outputLayer)
             // this.print(`iteration[${iteration}]: errorMaxDiff=${errorMaxDiff} threshold=${options.errorThreshold}`);
@@ -70,6 +71,8 @@ export class MatNeuronLayers implements IMatNeuronLayers {
         }
 
         this.print('\nLearning done!');
+        const duration = Date.now() - start;
+        this.print(`\n\nExecution time: ${duration}ms | ${duration / 1000}s`);
     }
 
     forwardRun(inputs: number[]): void {
@@ -103,6 +106,7 @@ export class MatNeuronLayers implements IMatNeuronLayers {
         }, 0)
         return ((1 / (Q * M)) * errorSum)
     }
+
     errorMaxDiff(presets: IPreset[], outputLayer: MatNeuronLayer): number {
         const maxDiff = presets.reduce((max, preset) => {
             this.predict(preset.inputs)

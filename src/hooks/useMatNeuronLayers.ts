@@ -6,12 +6,13 @@ import { computed, ref } from "vue";
 export interface IMatNeuronsOptions {
     layersOptions: ILayerOptions[]
     signals: ISignals
+    variant: string
 }
 
 export default function useMatNeuronLayers(options: IMatNeuronsOptions) {
-    const { layersOptions, signals } = options
+    const { layersOptions, signals, variant } = options
     const layers = ref(new MatNeuronLayers(layersOptions))
-    layers.value.initLayers(signals.getInputs())
+    layers.value.initLayers(signals.getInputs(), variant)
     const results = computed(() => {
         return layers.value.predict(signals.inputs)
     })

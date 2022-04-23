@@ -58,6 +58,7 @@ export default defineComponent({
     const { presets } = usePresets();
     const { matNeuron, neuronResult } = useMatNeuron(reactive<IMatNeuronOptions>({
       signals: signals.value,
+      variant: 'lb2'
     }))
 
     return {

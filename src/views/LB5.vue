@@ -69,6 +69,7 @@ export default defineComponent({
         const { presets } = usePresets()
         const { layers, results } = useMatNeuronLayers({
             signals: signals.value,
+            variant: 'lb5',
             layersOptions: [
                 { neuronAmount: 10 },
                 { neuronAmount: 10 },
@@ -78,7 +79,7 @@ export default defineComponent({
         const learnOptions = ref<ILearnOptions>({
             variant: 'lb5',
             eta: eta.value,
-            maxIterations: 1000,
+            maxIterations: 500,
             errorThreshold: 0.005
         })
 
