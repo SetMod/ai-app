@@ -10,7 +10,7 @@
             <span class="result">{{ neuronResult ? "even" : "odd" }}</span>
           </div>
           <div>Iterations: {{ matNeuron.iterations }}</div>
-          <button class="learn" @click="matNeuron.learnOnPresets(presets.presets)">Learn</button>
+          <button class="learn" @click="learn">Learn</button>
         </div>
       </section>
 
@@ -60,12 +60,15 @@ export default defineComponent({
       signals: signals.value,
       variant: 'lb2'
     }))
-
+    const learn = () => {
+      matNeuron.value.learnOnPresets(presets.value.presets)
+    }
     return {
       neuronResult,
       signals,
       presets,
       matNeuron,
+      learn,
     };
   },
 });

@@ -136,7 +136,6 @@ export default class MatNeuron {
     getDeltaWeights(input: number) {
         switch (this.variant) {
             case "lb4":
-                return this.eta * this.delta * input
             case "lb5":
                 return this.eta * this.delta * input
             default:

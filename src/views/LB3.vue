@@ -6,9 +6,9 @@
       <section>
         <div>
           <label>Speed:</label>
-          <input v-model="eta" type="number" name="eta" id="eta" min="0.05" max="1" step="0.01" />
+          <input v-model="learnOptions" type="number" name="eta" id="eta" min="0.05" max="1" step="0.01" />
         </div>
-        <button class="learn" @click="neurons.learn(presets.presets, learnOptions)">Learn</button>
+        <button class="learn" @click="learn">Learn</button>
       </section>
 
       <section class="flex">
@@ -44,7 +44,6 @@ export default defineComponent({
   setup() {
     const desiredResults = generateDesiredResults()
     const matNeuronAmount = desiredResults.length
-    const eta = ref(1)
     const { signals } = useSignals(reactive<ISignalsOptions>({
       arrayLength: 36,
       inputs: {
@@ -70,20 +69,23 @@ export default defineComponent({
       matNeuronAmount: matNeuronAmount,
       variant: 'lb3'
     }))
-    const learnOptions = reactive<ILearnOptions>({
+    const learnOptions = ref<ILearnOptions>({
       variant: 'lb3',
       errorThreshold: 0.005,
-      eta: eta.value,
+      eta: 1,
       maxIterations: 100
     })
+    const learn = () => {
+      neurons.value.learn(presets.value.presets, learnOptions.value)
+    }
     return {
       signals,
       presets,
       results,
       neurons,
-      eta,
       learnOptions,
       desiredResults,
+      learn,
     };
   },
 });

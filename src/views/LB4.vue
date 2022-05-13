@@ -6,9 +6,9 @@
       <section>
         <div>
           <label>Speed:</label>
-          <input v-model="eta" type="number" name="eta" id="eta" min="0.05" max="1" step="0.01" />
+          <input v-model="learnOptions.eta" type="number" name="eta" id="eta" min="0.05" max="1" step="0.01" />
         </div>
-        <button class="learn" @click="neurons.learn(presets.presets, learnOptions)">Learn</button>
+        <button class="learn" @click="learn">Learn</button>
       </section>
 
       <section class="flex">
@@ -27,13 +27,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { generateDesiredResults } from "@/helpers/generateInputs";
 import InputsDraw from "@/components/InputsDraw.vue";
 import PresetsList from "@/components/PresetsList.vue";
 import usePresets from "@/hooks/usePresets";
-import useSignals, { ISignalsOptions } from "@/hooks/useSignals";
-import useMatNeurons, { IMatNeuronsOptions } from "@/hooks/useMatNeurons";
+import useSignals from "@/hooks/useSignals";
+import useMatNeurons from "@/hooks/useMatNeurons";
 import { ILearnOptions } from "@/models/MatNeuron";
 
 export default defineComponent({
@@ -44,8 +44,7 @@ export default defineComponent({
   setup() {
     const desiredResults = generateDesiredResults()
     const matNeuronAmount = desiredResults.length
-    const eta = ref(1)
-    const { signals } = useSignals(reactive<ISignalsOptions>({
+    const { signals } = useSignals({
       arrayLength: 36,
       inputs: {
         arrayAmount: 1,
@@ -63,27 +62,30 @@ export default defineComponent({
           precision: 1
         }
       }
-    }));
+    });
     const { presets } = usePresets();
-    const { results, neurons } = useMatNeurons(reactive<IMatNeuronsOptions>({
+    const { results, neurons } = useMatNeurons({
       signals: signals.value,
       matNeuronAmount: matNeuronAmount,
       variant: 'lb4'
-    }))
+    })
     const learnOptions = ref<ILearnOptions>({
       variant: 'lb4',
       errorThreshold: 0.005,
-      eta: eta.value,
+      eta: 1,
       maxIterations: 300
     })
+    const learn = () => {
+      neurons.value.learn(presets.value.presets, learnOptions.value)
+    }
     return {
       signals,
       presets,
       results,
       neurons,
-      eta,
       learnOptions,
       desiredResults,
+      learn
     };
   },
 });

@@ -6,9 +6,10 @@
             <section>
                 <div>
                     <label>Speed:</label>
-                    <input v-model="eta" type="number" name="eta" id="eta" min="0.05" max="1" step="0.01" />
+                    <input v-model="learnOptions.eta" type="number" name="eta" id="eta" min="0.05" max="1"
+                        step="0.01" />
                 </div>
-                <button class="learn" @click="layers.learn(presets.presets, learnOptions)">Learn</button>
+                <button class="learn" @click="learn">Learn</button>
             </section>
 
             <section class="flex">
@@ -27,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
+import { computed, defineComponent, reactive, ref } from "vue";
 import { generateDesiredResults } from "@/helpers/generateInputs";
 import InputsDraw from "@/components/InputsDraw.vue";
 import PresetsList from "@/components/PresetsList.vue";
@@ -44,11 +45,10 @@ export default defineComponent({
     setup() {
         const desiredResults = generateDesiredResults()
         const matNeuronAmount = desiredResults.length
-        const desiredResultsAmount = desiredResults.length
-        const inputsAmount = 36;
-        const eta = ref(1)
+        const outputLayerAmount = desiredResults.length
+        const inputLayerAmount = 36;
         const { signals } = useSignals(reactive<ISignalsOptions>({
-            arrayLength: inputsAmount,
+            arrayLength: inputLayerAmount,
             inputs: {
                 arrayAmount: 1,
                 numberRange: {
@@ -67,30 +67,34 @@ export default defineComponent({
             }
         }));
         const { presets } = usePresets()
-        const { layers, results } = useMatNeuronLayers({
-            signals: signals.value,
+        const { layers } = useMatNeuronLayers({
             variant: 'lb5',
+            inputLayerAmount: inputLayerAmount,
             layersOptions: [
                 { neuronAmount: 10 },
                 { neuronAmount: 10 },
-                { neuronAmount: desiredResultsAmount },
+                { neuronAmount: outputLayerAmount },
             ]
+        })
+        const results = computed(() => {
+            return layers.value.predict(signals.value.inputs)
         })
         const learnOptions = ref<ILearnOptions>({
             variant: 'lb5',
-            eta: eta.value,
-            maxIterations: 500,
+            eta: 1,
+            maxIterations: 100,
             errorThreshold: 0.005
         })
-
+        const learn = () => {
+            layers.value.learn(presets.value.presets, learnOptions.value)
+        }
         return {
             results,
             signals,
             presets,
-            eta,
             learnOptions,
             desiredResults,
-            layers,
+            learn,
         };
     },
 });

@@ -4,26 +4,20 @@
     <!--------------------------------------lb3-------------------------------------->
     <section v-if="desiredResults">
       <section>
-        <button @click="addPreset(selectedDesire)">Add</button>
         <select name="desiredResults" v-model="selectedDesire" :required="true">
           <option :value="0" selected>Select letter</option>
-          <option
-            v-for="desired in desiredResults"
-            :value="desired.id"
-            :key="desired.id"
-          >{{ desired.name }}</option>
+          <option v-for="desired in desiredResults" :value="desired.id" :key="desired.id">{{ desired.name }}</option>
         </select>
+        <button @click="addPreset(selectedDesire)">Add</button>
         <button @click="loadSavedPresets">Load saved presets</button>
       </section>
 
       <section v-show="presets.presets.length">
         <select name="presets" v-model="selectedPreset" :required="true">
           <option :value="0" selected>Select preset</option>
-          <option
-            v-for="(preset, index) in presets.presets"
-            :key="index"
-            :value="index"
-          >#{{ index + 1 }} | {{ desiredResults[preset.value].name }}</option>
+          <option v-for="(preset, index) in presets.presets" :key="index" :value="index">#{{ index + 1 }} | {{
+              desiredResults[preset.value].name
+          }}</option>
         </select>
       </section>
     </section>
@@ -37,20 +31,15 @@
       <section v-show="presets.presets.length">
         <select name="presets" v-model="selectedPreset" :required="true">
           <option :value="0" selected>Select preset</option>
-          <option
-            v-for="(preset, index) in presets.presets"
-            :key="index"
-            :value="index"
-          >#{{ index + 1 }} {{ preset.value ? "even" : "odd" }}</option>
+          <option v-for="(preset, index) in presets.presets" :key="index" :value="index">#{{ index + 1 }} {{
+              preset.value ? "even" : "odd"
+          }}</option>
         </select>
       </section>
     </section>
     <!----------------------------------------------------------------------------------->
     <section class="buttons" v-show="presets.presets.length">
-      <button
-        class="presets__load"
-        @click="signals.setInputs(presets.getPreset(selectedPreset).inputs)"
-      >Load</button>
+      <button class="presets__load" @click="signals.setInputs(presets.getPreset(selectedPreset).inputs)">Load</button>
       <button class="presets__delete" @click="presets.deletePreset(selectedPreset)">Delete</button>
       <button @click="presets.resetPresets()">Clear</button>
     </section>
@@ -128,17 +117,21 @@ export default defineComponent({
   justify-content: center;
   margin: 0.5rem auto;
 }
+
 .presets__cell {
   background-color: rgb(202, 202, 202);
   margin: 0 0.2rem 0;
 }
+
 .presets button {
   margin: 0 0.2rem 0;
   border-radius: 0.2rem;
 }
+
 .presets__load {
   background-color: rgb(149, 208, 235);
 }
+
 .presets__delete {
   background-color: rgb(240, 160, 160);
 }

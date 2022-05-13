@@ -123,7 +123,6 @@ export class MatNeuronLayers implements IMatNeuronLayers {
         this.forwardRun(inputs)
         const outputLayer = this.getOutputLayer()
         const neuron = outputLayer.neurons.reduce((pevNeuron, neuron) => { return pevNeuron.prediction > neuron.prediction ? pevNeuron : neuron })
-
         return neuron.id
     }
 
