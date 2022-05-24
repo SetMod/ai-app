@@ -19,7 +19,7 @@ export interface ILayerOptions {
 export interface IMatNeuronLayer {
     neurons: MatNeuron[]
     id: number
-    initHiddenLayer: (inputs: number[], variant: string, prevLayer?: MatNeuronLayer) => void
+    initHiddenLayer: (inputLayerAmount: number, variant: string, prevLayer?: MatNeuronLayer) => void
     forwardRun: (inputs: number[], prevLayer?: MatNeuronLayer) => void
     backPropagate: (preset: IPreset, prevLayer: MatNeuronLayer, options: { eta: number, variant: string }) => void
 }
@@ -34,7 +34,13 @@ export class MatNeuronLayer implements IMatNeuronLayer {
         this.id = id
     }
 
-    initHiddenLayer(inputs: number[], variant: string, prevLayer?: MatNeuronLayer): void {
+    initHiddenLayer(inputLayerAmount: number, variant: string, prevLayer?: MatNeuronLayer): void {
+        // generate inputs only for layer with id=0
+        const inputs = this.id === 0 ? generateRandomArray({
+            arrayAmount: 1,
+            arrayLength: inputLayerAmount,
+            numberRange: { min: 0, max: 1, precision: 1 }
+        })[0] : []
 
         const weights = generateRandomArray({
             arrayAmount: this.neurons.length,
@@ -43,7 +49,7 @@ export class MatNeuronLayer implements IMatNeuronLayer {
         })
 
         for (let i = 0; i < this.neurons.length; i++)
-            this.neurons[i] = new MatNeuron(this.id === 0 ? inputs : [], weights[i], variant, i)
+            this.neurons[i] = new MatNeuron(inputs, weights[i], variant, i)
     }
 
     forwardRun(inputs: number[], prevLayer?: MatNeuronLayer): void {
